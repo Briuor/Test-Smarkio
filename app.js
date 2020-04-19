@@ -7,9 +7,17 @@ const app = express();
 app.set('view engine', 'ejs');
 
 app.get('/', function (req, res) {
-    // get data from database
+    // get history from database
 
     res.render('index', { name: 'bruno' });
+});
+
+app.get('/api/last_search', function (req, res) {
+    // get history in database
+});
+
+app.post('/api/history', function (req, res) {
+    // save history in database
 });
 
 app.listen(3000, function () {
