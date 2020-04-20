@@ -1,24 +1,21 @@
 const express = require('express');
 const app = express();
+const path = require('path');
+const bodyParser = require('body-parser');
+const cors = require('cors')
+const cityController = require('./controllers/cityController');
 
-// weather api route: api.openweathermap.org/data/2.5/weather?q={city name}&appid={your api key}
+app.use(express.static(path.join(__dirname, '/public')));
+app.use(bodyParser.json());
+app.use(cors());
 
-// using ejs to embed js in html
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs'); // using ejs to embed js in html
 
-app.get('/', function (req, res) {
-    // get history from database
-
-    res.render('index', { name: 'bruno' });
-});
-
-app.get('/api/last_search', function (req, res) {
-    // get history in database
-});
-
-app.post('/api/history', function (req, res) {
-    // save history in database
-});
+// routes
+app.get('/', cityController.index);
+app.get('/api/city/recent', cityController.recent_cities);
+app.get('/api/city/searched', cityController.most_searched_cities);
+app.post('/api/city', cityController.add_city);
 
 app.listen(3000, function () {
     console.log('listening on port 3000! Access http://localhost:3000');

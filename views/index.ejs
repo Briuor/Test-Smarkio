@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Weather</title>
     <!-- bootstrap and jQuery -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -15,20 +15,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
-
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .d_block {
-            display: inline-block;
-        }
-
-        #weather_data {
-            display: none;
-        }
-    </style>
+    <!-- own css -->
+    <link rel="stylesheet" href="/css/index.css" type="text/css" />
 </head>
 
 <body>
@@ -37,12 +25,16 @@
             <!-- SERACH PANEL -->
             <div class="col-md-6 col-sm-12">
                 <div class="card text-left mt-3">
-                    <div class="text-center p-2">
-                        <label style="font-size: 1.6em;">Digite a cidade</label>
-                        <input id="searchbar" type="text" />
-                        <button id="searchbtn" class="btn btn-success">Buscar</button>
-                    </div>
-                    <div id="weather_data" class="p-3">
+                    <form class="form p-3">
+                        <div class="form-group m-0">
+                            <label class="pl-2 pr-2">Digite a cidade</label>
+                            <input id="searchbar" placeholder="cidade" class="form-control d-inline-block w-50"
+                                type="text" />
+                            <button id="searchbtn" class="btn btn-info ml-2 mb-1" type="submit">Buscar</button>
+                        </div>
+                    </form>
+
+                    <div id="weather_data" class="mt-1 p-2 pl-4">
                         <h1>
                             <span id="city"></span>,
                             <span id="country"></span>
@@ -52,10 +44,14 @@
                             <span id="hour"></span>,
                             <span id="weather"></span>
                         </p>
-                        <div><span id="temperature"></span>°C</div>
-                        <img id="weather_icon" src="http://openweathermap.org/img/w/50d.png" />
+                        <div>
+                            <span id="temperature"></span>
+                            <img alt="icone de clima" id="weather_icon" src="http://openweathermap.org/img/w/50d.png" />
+                        </div>
+                        <img src="/img/humidity.svg" alt="porcentagem humidade" width="25" />
+                        <span class="pl-2"><span id="humidity"></span>%</span>
                     </div>
-                    <div id="weather_warning" class="p-3 text-center">
+                    <div id="weather_warning" class="mt-1 p-2 pl-4 text-center">
 
                     </div>
                 </div>
@@ -63,105 +59,26 @@
             <!-- HISTORY PANEL -->
             <div class=" col-md-6 col-sm-12">
                 <div class="card p-3 text-left mt-3">
-
                     <h2>Top 5 cidades mais pesquisadas</h2>
-                    <ul class="list-group" class="m-0 p-0">
-                        <li><span class="badge badge-pill badge-light">test</span></li>
+                    <ul id="searched_cities" class="m-0 p-0">
+                        <% searchedCities.forEach(function(searchedCity) { %>
+                        <li class="d_block pl-2 pr-2"><span
+                                class="badge badge-pill badge-light p-2"><%= searchedCity.name %></span></li>
+                        <% });%>
                     </ul>
                     <hr />
-                    <ul id="last_cities" class="list-group">
+                    <ul id="recent_cities" class="list-group">
+                        <% recentCities.forEach(function(recentCity) { %>
+                        <li class="last_city list-group-item p-2"><%= recentCity.name %>,
+                            <%= recentCity.temperature %> °C, <%= recentCity.weather %> <%= recentCity.time%></li>
+                        <% });%>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        // dom references in variable to search by id only once
-        const $city = $('#city');
-        const $country = $('#country');
-        const $humidity = $('#humidity');
-        const $day_name = $('#day_name');
-        const $hour = $('#hour');
-        const $temperature = $('#temperature');
-        const $weather = $('#weather');
-        const $searchbtn = $('#searchbtn');
-        const $searchbar = $('#searchbar');
-        const $weather_warning = $('#weather_warning');
-        const $weather_data = $('#weather_data');
-        const $last_cities = $('#last_cities');
-        const $last_city = $('.last_city');
-        $(function () {
-            showWarning('Pesquise uma cidade!');
-        })
-
-
-        // event triggered when user click in search button
-        $searchbtn.click(function (e) {
-            const city = $searchbar.val();
-            searchCity(city);
-        });
-
-        // event triggered when user click in a city searched
-        // $last_city.click(function (e) {
-        //     console.log($last_city.text());
-        //     // searchCity();
-        // });
-
-
-        function searchCity(city) {
-            $.get(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=fdbac302be160aaa43c47482d49f4cdf`, function (data) {
-                if (data.cod.toString() === "200") {
-                    // fill infomation inside page
-                    fillCityInfo(data);
-                    // insert last city
-                    newLastCity(data.name);
-                    // post city searched in database
-                }
-                else {
-                    showWarning('Cidade não encontrada.');
-                }
-
-            }).fail(function () {
-                showWarning('Cidade não encontrada.');
-            });
-        }
-
-        function fillCityInfo(data) {
-            const zeroCelInKel = 273.15; // 0 celsius = 273.15 kelvin
-            let dt = new Date(data.dt * 1000); // in milliseconds
-            const dayNames = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-            const currentDayName = dayNames[dt.getDay()];
-            const currentHour = dt.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' });
-            $city.text(data.name);
-            $country.text(data.sys.country);
-            $temperature.text(Math.round(data.main.temp - zeroCelInKel).toString());
-            $humidity.text(data.main.humidity);
-            $day_name.text(currentDayName);
-            $hour.text(currentHour);
-            $weather.text(data.weather[0].main);
-            $weather_warning.css("display", "none");
-            $weather_data.css("display", "block");
-        }
-
-        function newLastCity(city) {
-            const newLastCityElement = `<a href="#" class="last_city">${city}</a>`;
-            // if there are 5 cities, remove last and insert new one
-            if ($last_cities.children().length === 5) {
-                $last_cities.children().last().remove();
-                $last_cities.prepend(newLastCityElement);
-            }
-            // insert in list
-            else {
-                $last_cities.prepend(newLastCityElement);
-            }
-        }
-
-        function showWarning(text) {
-            $weather_warning.text(text);
-            $weather_data.css("display", "none");
-            $weather_warning.css("display", "block");
-        }
-    </script>
+    <!-- scripts -->
+    <script src="/js/index.js"></script>
 </body>
 
 </html>

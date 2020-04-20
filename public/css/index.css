@@ -1,0 +1,37 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+div.card form {
+    box-shadow: 0px 1px 3px grey;
+}
+div.card form label {
+    font-size: 1.4em;
+}
+
+
+.d_block {
+    display: inline-block;
+}
+
+div#weather_data, div#weather_warning {
+    display: none;
+    background: #f5f5f5;
+}
+
+img#weather_icon {
+    width: 140px; margin-top: -60px; margin-left: 100px
+}
+
+ul#recent_cities li {
+    border: none;
+}
+
+ul#searched_cities li {
+    font-size: 1.4em;
+}
+
+span#temperature {
+    font-size: 5em;
+    color: #ababab;
+}
