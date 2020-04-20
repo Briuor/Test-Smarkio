@@ -9,7 +9,7 @@
 # clone o projeto
 git clone https://github.com/Briuor/Test-Smarkio.git
 # abra o diretorio do projeto
-cd Teste-Smarkio/
+cd Test-Smarkio/
 # instale as dependências
 npm install
 ```
