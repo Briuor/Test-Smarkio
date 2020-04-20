@@ -30,4 +30,5 @@ npx sequelize-cli db:migrate
 
 ```sh
 npm start
+# acessar http://localhost:3000
 ```
